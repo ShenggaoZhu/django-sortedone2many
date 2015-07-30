@@ -22,3 +22,4 @@ coverage.xml
 db.sqlite
 pep8.txt
 
+__pycache__

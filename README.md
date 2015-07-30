@@ -87,10 +87,17 @@ It behaves similar to a ``SingleRelatedObjectDescriptor`` as it directly
 exposes the related object, but underneath it uses the ``manager`` of
 the many-to-many intermediary model (similar to the
 ``ManyRelatedObjectsDescriptor``).
-    
-    
+
+
+Test
+====
+Run ``python manage.py test tests``
++ ``test_project`` contains the django project ``settings.py``
++ ``tests`` folder contains all the testcases
+
+
 TODO
 ====
 + *Incomplete, untested, bugs may occur!*
-+ Add tests, examples, and complete the package
++ Add more tests, examples, and complete the package
 + ...

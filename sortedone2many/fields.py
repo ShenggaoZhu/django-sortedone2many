@@ -42,6 +42,22 @@ class OneToManyRelatedObjectDescriptor(ManyRelatedObjectsDescriptor):
     def __init__(self, related):
         self.related = related
         self.cache_name = related.get_cache_name()
+        self.sup = super(OneToManyRelatedObjectDescriptor, self)
+
+    def is_cached(self, instance):
+        return hasattr(instance, self.cache_name)
+
+    def get_manager(self, instance):
+        # get the manager using ManyRelatedObjectsDescriptor
+        return self.sup.__get__(instance)
+
+    def get_prefetch_queryset(self, instances, queryset=None):
+        instance = instances[0]
+        manager = self.get_manager(instance)
+        (queryset, rel_obj_attr, instance_attr, single, cache_name) = manager.get_prefetch_queryset(instances, queryset)
+        single = True
+        cache_name = self.cache_name
+        return (queryset, rel_obj_attr, instance_attr, single, cache_name)
 
     def __get__(self, instance, instance_type=None):
         if instance is None:
@@ -49,7 +65,8 @@ class OneToManyRelatedObjectDescriptor(ManyRelatedObjectsDescriptor):
         try:
             rel_obj = getattr(instance, self.cache_name)
         except AttributeError:
-            manager = ManyRelatedObjectsDescriptor.__get__(self, instance, instance_type)
+            manager = self.get_manager(instance)
+#             manager = ManyRelatedObjectsDescriptor.__get__(self, instance, instance_type)
             rel_obj_all = manager.all()
             count = rel_obj_all.count()
             if count == 0:
@@ -97,7 +114,8 @@ class OneToManyRelatedObjectDescriptor(ManyRelatedObjectsDescriptor):
             )
 
 #         manager = self.__get__(instance)
-        manager = ManyRelatedObjectsDescriptor.__get__(self, instance)
+#         manager = ManyRelatedObjectsDescriptor.__get__(self, instance)
+        manager = self.get_manager(instance)
         db = router.db_for_write(manager.through, instance=manager.instance)
         with transaction.atomic(using=db, savepoint=False):
             manager.clear()
@@ -148,6 +166,10 @@ class SortedOneToManyField(SortedManyToManyField):
         self.sort_value_field_name = kwargs.pop(
             'sort_value_field_name',
             SORT_VALUE_FIELD_NAME)
+
+        # not symmetrical, even for RECURSIVE_RELATIONSHIP_CONSTANT
+        kwargs['symmetrical'] = False
+
 
 #         super(SortedManyToManyField, self).__init__(to, **kwargs)
 
