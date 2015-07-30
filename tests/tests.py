@@ -9,7 +9,7 @@ from django.utils import six
 
 from django.test import TestCase
 from django.db.utils import IntegrityError
-from .models import Category, Item, CategorySelf
+from .models import *
 
 str_ = six.text_type
 
@@ -290,3 +290,28 @@ class TestSelfReference(TestSortedOneToManyField):
         self.assertRaisesUniqueFailed(cat2.items.add, cat)
 
 
+
+class TestStringReference(TestSortedOneToManyField):
+    M_Cat = CategoryStringRef
+    M_Item = ItemStringRef
+
+
+# not working
+
+# from django.contrib.auth.models import User
+# from django.db.models.signals import class_prepared
+# class_prepared.send(User, **{'class':User})
+
+class TestAddExtraField(TestSortedOneToManyField):
+    M_Cat = CategoryFixed
+#     M_Cat = User
+    M_Item = ItemFixed
+
+
+#     @classmethod
+#     def setUpTestData(cls):
+#         # Set up data for the whole TestCase
+#         cls.cats = [cls.M_Cat.objects.create(username="cat%s" % i) for i in range(2)]
+#         cls.items = [cls.M_Item.objects.create(name="item%s" % i) for i in range(10)]
+#         
+        

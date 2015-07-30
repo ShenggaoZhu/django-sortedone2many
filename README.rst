@@ -21,7 +21,7 @@ Sorting or reordering related objects in ``OneToMany`` or ``ManyToMany`` relatio
 a strong need sometimes, where ``SortedManyToManyField`` can come in handy.
 
 Imagine that you have a ``Category`` model and an ``Item`` model. 
-Each item belongs to only one category, and each category has an ordered list of items. 
+Each item belongs to only one category, and each category has an **ordered list of items**. 
 To address this need, you can simply add a ``SortedOneToManyField`` (pointed to ``Item``)
 to the ``Category`` model.
 

@@ -181,7 +181,7 @@ class SortedOneToManyField(SortedManyToManyField):
             to._meta
         except AttributeError:  # to._meta doesn't exist, so it must be RECURSIVE_RELATIONSHIP_CONSTANT
             assert isinstance(to, six.string_types), (
-                "%s(%r) is invalid. First parameter to ManyToManyField must be "
+                "%s(%r) is invalid. First parameter to SortedOneToManyField must be "
                 "either a model, a model name, or the string %r" %
                 (self.__class__.__name__, to, RECURSIVE_RELATIONSHIP_CONSTANT)
             )
@@ -245,4 +245,32 @@ class SortedOneToManyField(SortedManyToManyField):
         self.m2m_target_field_name = lambda: get_m2m_rel().field_name
         get_m2m_reverse_rel = curry(self._get_m2m_reverse_attr, related, 'rel')
         self.m2m_reverse_target_field_name = lambda: get_m2m_reverse_rel().field_name
+
+
+def inject_extra_field_to_model(from_model, field_name, field):
+    if not isinstance(from_model, six.string_types):
+        field.contribute_to_class(from_model, field_name)
+        return
+
+    app_label, model_name = from_model.split('.')
+    from django.apps import apps
+    try:
+        from_model_cls = apps.get_registered_model(app_label, model_name)
+#         if apps.ready:
+#             from_model_cls = apps.get_model(app_label, model_name)
+        field.contribute_to_class(from_model_cls, field_name)
+    except:
+        from django.db.models.signals import class_prepared
+        def add_field(sender, **kwargs):
+            print('add_field', kwargs)
+            if sender.__name__ == model_name and sender._meta.app_label == app_label:
+                print('add_field 222')
+                field.contribute_to_class(sender, field_name)
+        # TODO: `add_field` is never called. `class_prepared` already fired or never fire??
+        class_prepared.connect(add_field)
+
+
+
+
+
 

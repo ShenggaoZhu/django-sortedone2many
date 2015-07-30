@@ -63,6 +63,8 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'example',
+    
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -72,8 +74,7 @@ INSTALLED_APPS = (
     'sortedm2m',  # dependency
 
     'sortedone2many',
-#     'tests',
-    'example',
+    'tests',  # must add 'tests' app to generate testing models
 
 #     'sortedm2m',
 #     'sortedm2m_tests',
