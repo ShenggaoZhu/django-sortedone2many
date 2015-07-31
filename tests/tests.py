@@ -296,22 +296,9 @@ class TestStringReference(TestSortedOneToManyField):
     M_Item = ItemStringRef
 
 
-# not working
-
-# from django.contrib.auth.models import User
-# from django.db.models.signals import class_prepared
-# class_prepared.send(User, **{'class':User})
 
 class TestAddExtraField(TestSortedOneToManyField):
-    M_Cat = CategoryFixed
-#     M_Cat = User
-    M_Item = ItemFixed
+    M_Cat = M1
+    M_Item = M2
 
-
-#     @classmethod
-#     def setUpTestData(cls):
-#         # Set up data for the whole TestCase
-#         cls.cats = [cls.M_Cat.objects.create(username="cat%s" % i) for i in range(2)]
-#         cls.items = [cls.M_Item.objects.create(name="item%s" % i) for i in range(10)]
-#         
         

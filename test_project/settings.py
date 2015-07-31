@@ -47,7 +47,7 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'define in local settings file'
+SECRET_KEY = 'define in local settings file.......'
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -63,8 +63,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    'example',
-    
+
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -73,21 +72,18 @@ INSTALLED_APPS = (
 
     'sortedm2m',  # dependency
 
-    'sortedone2many',
-    'tests',  # must add 'tests' app to generate testing models
+##     'sortedone2many', # no model/static files; no need to add
 
-#     'sortedm2m',
-#     'sortedm2m_tests',
-#     'sortedm2m_tests.migrations_tests',
-#     'sortedm2m_tests.altersortedmanytomanyfield_tests',
-#
-#     'example.testapp',
+    'test_app',
+ 
+    'tests',  # must add 'tests' app to generate testing models
+    'tests.app2',
 )
 
-# MIGRATION_MODULES = {
-#     'migrations_tests': 'sortedm2m_tests.migrations_tests.django17_migrations',
-#     'altersortedmanytomanyfield_tests': 'sortedm2m_tests.altersortedmanytomanyfield_tests.django17_migrations',
-# }
+
+MIGRATION_MODULES = {
+    "auth": "test_app.migrations_auth",
+}
 
 import django
 
@@ -105,7 +101,3 @@ if django.VERSION >= (1, 6):
 #         'test_south_support.south_support_custom_sort_field_name',
 #     )
 
-try:
-    from local_settings import *
-except ImportError:
-    pass

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from sortedone2many.fields import SortedOneToManyField, inject_extra_field_to_model
+from sortedone2many.fields import SortedOneToManyField
+from sortedone2many.utils import inject_extra_field_to_model
 
 
 class Item(models.Model):
@@ -26,13 +27,14 @@ class CategorySelf(models.Model):
     def __str__(self):
         return self.name
 
-# from django.contrib.auth.models import User
-# inject_extra_field_to_model('auth.User', 'items', SortedOneToManyField(Item, sorted=True, blank=True))
-# !! not working using string model_name
-# 
+
 class FixedCategory(models.Model):
     name = models.CharField(max_length=50)
-# 
+
 inject_extra_field_to_model(FixedCategory, 'items', SortedOneToManyField(Item, sorted=True, blank=True))
+
+from django.contrib.auth.models import User
+inject_extra_field_to_model(User, 'items', SortedOneToManyField(Item, related_name='owner'))
+
 
 

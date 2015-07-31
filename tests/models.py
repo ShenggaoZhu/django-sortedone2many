@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from sortedone2many.fields import SortedOneToManyField, inject_extra_field_to_model
+from sortedone2many.fields import SortedOneToManyField
+from sortedone2many.utils import inject_extra_field_to_model
 
 
 class Item(models.Model):
@@ -44,3 +45,12 @@ inject_extra_field_to_model(CategoryFixed, 'items',
 # from django.contrib.auth.models import User
 # inject_extra_field_to_model(User, 'items',
 #     SortedOneToManyField(ItemFixed, sorted=True, related_name='category', blank=True))
+
+
+from tests.app2.models import M1, M2
+
+inject_extra_field_to_model(M1, 'items',
+    SortedOneToManyField(M2, sorted=True, related_name='category', blank=True))
+
+
+
