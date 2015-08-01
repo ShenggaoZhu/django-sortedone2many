@@ -12,8 +12,8 @@ def handle404(request):
 def handle500(request):
     return HttpResponse('404')
 
-handler404 = 'example.urls.handle404'
-handler500 = 'example.urls.handle500'
+# handler404 = 'example.urls.handle404'
+# handler500 = 'example.urls.handle500'
 
 
 urlpatterns = patterns('',

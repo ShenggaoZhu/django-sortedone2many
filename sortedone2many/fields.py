@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from sortedm2m.fields import SortedManyToManyField, SORT_VALUE_FIELD_NAME
 from sortedm2m.compat import get_foreignkey_field_kwargs
 
+from .forms import SortedMultipleChoiceWithDisabledField
 
 class OneToManyRel(ManyToManyRel):
     def __init__(self, *args, **kwargs):
@@ -103,15 +104,15 @@ class OneToManyRelatedObjectDescriptor(ManyRelatedObjectsDescriptor):
                     self.related.get_accessor_name(),
                 )
             )
-        elif value is not None and not isinstance(value, self.related.related_model):
-            raise ValueError(
-                'Cannot assign "%r": "%s.%s" must be a "%s" instance.' % (
-                    value,
-                    instance._meta.object_name,
-                    self.related.get_accessor_name(),
-                    self.related.related_model._meta.object_name,
-                )
-            )
+#         elif value is not None and not isinstance(value, self.related.related_model):
+#             raise ValueError(
+#                 'Cannot assign "%r": "%s.%s" must be a "%s" instance.' % (
+#                     value,
+#                     instance._meta.object_name,
+#                     self.related.get_accessor_name(),
+#                     self.related.related_model._meta.object_name,
+#                 )
+#             )
 
 #         manager = self.__get__(instance)
 #         manager = ManyRelatedObjectsDescriptor.__get__(self, instance)
@@ -210,6 +211,14 @@ class SortedOneToManyField(SortedManyToManyField):
 
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
+    
+    def formfield(self, **kwargs):
+        defaults = {}
+        if self.sorted:
+            defaults['form_class'] = SortedMultipleChoiceWithDisabledField
+        defaults['related_query_name'] = self.related_query_name()
+        defaults.update(kwargs)
+        return super(SortedManyToManyField, self).formfield(**defaults)
 
     def get_intermediate_model_to_field(self, klass):
         name = self.get_intermediate_model_name(klass)

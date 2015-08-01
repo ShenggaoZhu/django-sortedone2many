@@ -7,6 +7,7 @@ from sortedone2many.utils import inject_extra_field_to_model
 
 class Item(models.Model):
     name = models.CharField(max_length=50)
+    fk = models.ForeignKey('Category', blank=True, null=True)
 
     def __str__(self):
         return self.name
