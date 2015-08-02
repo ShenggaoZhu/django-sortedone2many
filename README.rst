@@ -47,7 +47,7 @@ It is very useful to represent **an ordered list of items**
 Also, ``OneToMany`` relationship offers better **semantics** and **readability** than ``ForeignKey``,
 especially for scenarios like ``master-detail`` or ``category-item`` 
 (where each item only belongs to one category).
-`this blog explains it nicely <http://blog.amir.rachum.com/blog/2013/06/15/a-case-for-a-onetomany-relationship-in-django/>`_.
+`This blog explains it nicely <http://blog.amir.rachum.com/blog/2013/06/15/a-case-for-a-onetomany-relationship-in-django/>`_.
 
 Adding ``OneToMany`` to existing models
 ---------------------------------------

@@ -64,7 +64,8 @@ setup(
     name='django-sortedone2many',
     version=find_version('sortedone2many', '__init__.py'),
     url='https://github.com/ShenggaoZhu/django-sortedone2many',
-    license='BSD',
+    download_url = 'https://codeload.github.com/ShenggaoZhu/django-sortedone2many/zip/0.1',
+    license='MIT',
     description=
         'Provide a one-to-many relation that also remembers the order of related objects.',
     long_description=long_description,
@@ -73,6 +74,7 @@ setup(
     packages=['sortedone2many'],
     include_package_data=True,
     zip_safe=False,
+    keywords = ['django', 'model', 'field', 'one-to-many', 'SortedOneToManyField'],
     install_requires=['django>=1.8',
                       'sortedm2m>=1.0'
                      ],
@@ -85,9 +87,9 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
+#         'Programming Language :: Python :: 2.6',
+#         'Programming Language :: Python :: 2.7',
+#         'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.4',
     ],
 )
