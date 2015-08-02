@@ -76,7 +76,7 @@ setup(
     zip_safe=False,
     keywords = ['django', 'model', 'field', 'one-to-many', 'SortedOneToManyField'],
     install_requires=['django>=1.8',
-                      'sortedm2m>=1.0'
+                      'django-sortedm2m>=1.0.0'
                      ],
     classifiers=[
         'Development Status :: 4 - Beta',
