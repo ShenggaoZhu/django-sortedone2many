@@ -2,12 +2,13 @@
 django-sortedone2many
 =====================
 
-``sortedone2many`` provides a ``SortedOneToManyField`` that establishes a 
+``sortedone2many`` provides a ``SortedOneToManyField`` for django Model that establishes a 
 one-to-many relationship (which can also remember the order of related objects).
 
 Depends on ``SortedManyToManyField`` from the great library django-sortedm2m_ (check it out!).
 
 .. _django-sortedm2m: https://github.com/gregmuellegger/django-sortedm2m
+
 
 Usecases
 ========
@@ -18,7 +19,7 @@ Sorted ``OneToMany`` relationship
 The ``OneToMany`` relationship has been long missing from django ORM.
 A similar relationship, ``ManyToOne``, is provided via a ``ForeignKey``,
 which is always declared on the "many" side of the relationship.
-As in the following example (using ``related_name`` on a ``ForeignKey``)::
+In the following example (using ``related_name`` on a ``ForeignKey``)::
 
     class Category(models.Model):
         name = models.CharField(max_length=50)
@@ -39,8 +40,9 @@ the model on the "one" side of the relationship::
         items = SortedOneToManyField(Item, sorted=True, blank=True)
 
 ``SortedOneToManyField`` uses an intermediary model with an extra
-``sort value`` field to manage the orders of the related objects.
-It is very useful and convenient to represent **an ordered list of items**.
+``sort_value`` field to manage the orders of the related objects.
+It is very useful to represent **an ordered list of items** 
+(according to their added order or manually arrangement).
 
 Also, ``OneToMany`` relationship offers better **semantics** and **readability** than ``ForeignKey``,
 especially for scenarios like ``master-detail`` or ``category-item`` 
@@ -50,9 +52,9 @@ Adding ``OneToMany`` to existing models
 ---------------------------------------
 
 Since ``OneToMany`` relationship uses an intermediary model, 
-it can work withouting altering already-existing models,
+it can work without altering already-existing models/tables,
 thus providing better **extensibility** than ``ForeignKey``
-(which requires adding a ForeignKey field to the "many" side model).
+(which requires adding a ``ForeignKey`` field to the model/table).
 This is a big advantage when the existing models can't be changed
 (e.g., models in a third-party library, or shared among several applications).
 
@@ -60,10 +62,12 @@ This package provides a shortcut function ``add_sorted_one2many_relation``
 to inject ``OneToMany`` relationship to existing models without editing the 
 model source code or subclassing the models.
 
+
 Usage
 =====
 
-Add the ``SortedOneToManyField`` to the model on the "one" side of the relationship::
+Add the ``SortedOneToManyField`` to the model on the "one" side of the 
+relationship (as opposed to ``ForeignKey`` on the "many" side)::
 
     from django.db import models
     from sortedone2many.fields import SortedOneToManyField
@@ -75,50 +79,55 @@ Add the ``SortedOneToManyField`` to the model on the "one" side of the relations
         name = models.CharField(max_length=50)
         items = SortedOneToManyField(Item, sorted=True, blank=True)
 
-In this case, ``category.items`` is the manager for related ``Item`` objects (the same as
-the normal ``ManyToManyField``, e.g. ``category.items.add(new_item)``),
-while ``item.category`` is an instance (not manager) of ``Category`` (similar 
-to a ``OneToOneField``, e.g., ``item.category.name``).
+Here, ``category.items`` is the manager for related ``Item`` objects (the same as
+the normal ``ManyToManyField``, e.g. use it like ``category.items.add(new_item)``),
+while ``item.category`` is an instance (not manager) of ``Category`` (similar
+to a ``OneToOneField``, e.g., use it like ``item.category.pk``)..
 
-**Admin**
-
-Add ``sortedm2m`` to your INSTALLED_APPS settings to use the custom widget 
-provided by ``SortedManyToManyField``, which can be used to sort
-the selected items. It renders a list of checkboxes that can be sorted by
-drag'n'drop.
+Strictly speaking, ``item.category`` is an instance of 
+``sortedone2many.fields.OneToManyRelatedObjectDescriptor``,
+which directly exposes the (single) related object.
+This is different from the ``ManyRelatedObjectsDescriptor`` (as in the normal ``ManyToManyField``)
+which exposes the ``manager`` of the (multiple) related objects.
 
 ``SortedOneToManyField``
 ------------------------
 Similar to ``SortedManyToManyField``, 
 it uses an intermediary model that holds a ForeignKey field pointed at
-the model on the forward side of the relationship, a OneToOneField field
-pointed at the model on the remote side (to ensure each remote object
-only relates to a unique forward object), and another field storing the
-sort value (to remember to orders of the remote objects).
+the model on the "one" side of the relationship, a OneToOneField field
+pointed at the model on the "many" side (to ensure the unique relationship 
+to the "one" side), and another field storing the
+sort value (to remember to orders of the objects on the "many" side).
 
 ``SortedOneToManyField`` accepts a boolean ``sorted`` attribute which specifies if relationship is
 ordered or not. Default is set to ``True``.
 
 Refer to django-sortedm2m_ for more details.
 
-``OneToManyRelatedObjectDescriptor``
-------------------------------------
+Admin
+_____
 
-This library also implements a ``OneToManyRelatedObjectDescriptor``,
-which is an accessor to the related object (not the manager) on the 
-reverse side of a one-to-many relationship.
+First, add ``"sortedm2m"`` to your ``INSTALLED_APPS`` settings, 
+which provides the static ``js`` and ``css`` files to render 
+the related objects in a ``SortedOneToManyField`` as a list of 
+checkboxes that can be sorted by drag'n'drop.
+(That is the same as the behavior of a ``SortedManyToManyField``).
 
-In the example::
+By default, a ``SortedOneToManyField`` is translated into a form field
+``sortedone2many.forms.SortedMultipleChoiceWithDisabledField`` for rendering.
+This form field also adds a special function to the widget:
+disables those checkboxes that should not be directly selected 
+on the current admin view (to ensure the unique ``OneToMany`` relationship).
 
-    class Category(models.Model):
-        items = SortedOneToManyField(Item, sorted=True)
+E.g., in the image below, on the admin view for ``category 1``, 
+``item1.category`` is ``category 2``, so the checkbox for ``item1`` is disabled
+because ``category 2`` has to remove ``item1`` from its ``items`` list before
+``category 1`` can select ``item1`` in the admin view.
 
-``item.category`` is a OneToManyRelatedObjectDescriptor instance.
+.. image:: https://raw.githubusercontent.com/ShenggaoZhu/django-sortedone2many/master/docs/category.jpg
 
-It behaves similar to a ``SingleRelatedObjectDescriptor`` as it directly
-exposes the related object, but underneath it uses the ``manager`` of
-the many-to-many intermediary model (similar to the
-``ManyRelatedObjectsDescriptor``).
+.. image:: https://raw.githubusercontent.com/ShenggaoZhu/django-sortedone2many/master/docs/item.jpg
+
 
 Utility functions
 -----------------

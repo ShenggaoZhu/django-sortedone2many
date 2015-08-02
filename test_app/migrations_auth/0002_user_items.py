@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='items',
-            field=sortedone2many.fields.SortedOneToManyField(help_text=None, to='test_app.Item', related_name='owner'),
+            field=sortedone2many.fields.SortedOneToManyField(help_text=None, related_name='owner', to='test_app.Item'),
         ),
     ]

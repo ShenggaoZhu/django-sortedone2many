@@ -169,7 +169,6 @@ class TestSortedOneToManyField(TestCase):
         self.items[3].category = cat.pk
         self.assertEqual(self.items[3].category, cat)
 
-
         # directly assign category by pk
         self.items[3].category = str_(cat2.pk)
         self.assertEqual(self.items[3].category, cat2)
@@ -252,20 +251,6 @@ class TestSortedOneToManyField(TestCase):
 
         cat.items.remove(self.items[2], str_(self.items[4].pk))
         self.assertEqual(list(cat.items.all()), [])
-
-#    def test_add_relation_by_hand(self):
-#        cat = self.cats[0]
-#        cat.items = self.items[2:5]
-#        self.assertEqual(list(cat.items.all()), [
-#            self.items[2],
-#            self.items[3],
-#            self.items[4]])
-#
-#        cat.items.create()
-#        self.assertEqual(list(cat.items.all()), [
-#            self.items[2],
-#            self.items[3],
-#            self.items[4]])
 
     # to enable population of connection.queries
     @override_settings(DEBUG=True)

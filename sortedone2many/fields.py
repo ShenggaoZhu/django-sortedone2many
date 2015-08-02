@@ -123,7 +123,8 @@ class OneToManyRelatedObjectDescriptor(ManyRelatedObjectsDescriptor):
                         self.related.related_model._meta.object_name,
                     )
                 )
-#             elif value is not None:
+            elif value is None:
+                set_cache = True
 #                 try:
 #                     print(manager.all(), value)
 #                     value = manager.get(pk=value)

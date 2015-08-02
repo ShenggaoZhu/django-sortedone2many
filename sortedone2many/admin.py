@@ -35,7 +35,9 @@ class One2ManyModelFormMetaclass(ModelFormMetaclass):
                     related_one2manyfields.append(field)
                     related_model = field.related_model
                     related_name = field.name
-                    attrs[related_name] = forms.ModelChoiceField(queryset=related_model.objects.all())
+                    attrs[related_name] = forms.ModelChoiceField(
+                        queryset=related_model.objects.all(),
+                        required=False)
 #         attrs['one2manyfields'] = one2manyfields
         attrs['related_one2manyfields'] = related_one2manyfields
         new_class = super(One2ManyModelFormMetaclass, mcs).__new__(mcs, name, bases, attrs)

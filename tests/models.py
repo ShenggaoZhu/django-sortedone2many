@@ -41,11 +41,6 @@ class CategoryFixed(models.Model):
 inject_extra_field_to_model(CategoryFixed, 'items',
     SortedOneToManyField(ItemFixed, sorted=True, related_name='category', blank=True))
 
-# not working
-# from django.contrib.auth.models import User
-# inject_extra_field_to_model(User, 'items',
-#     SortedOneToManyField(ItemFixed, sorted=True, related_name='category', blank=True))
-
 
 from tests.app2.models import M1, M2
 
