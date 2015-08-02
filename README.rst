@@ -42,11 +42,12 @@ the model on the "one" side of the relationship::
 ``SortedOneToManyField`` uses an intermediary model with an extra
 ``sort_value`` field to manage the orders of the related objects.
 It is very useful to represent **an ordered list of items** 
-(according to their added order or manually arrangement).
+(according to their added order or user-specified order).
 
 Also, ``OneToMany`` relationship offers better **semantics** and **readability** than ``ForeignKey``,
 especially for scenarios like ``master-detail`` or ``category-item`` 
-(`this blog explains it nicely <http://blog.amir.rachum.com/blog/2013/06/15/a-case-for-a-onetomany-relationship-in-django/>`_).
+(where each item only belongs to one category).
+`this blog explains it nicely <http://blog.amir.rachum.com/blog/2013/06/15/a-case-for-a-onetomany-relationship-in-django/>`_.
 
 Adding ``OneToMany`` to existing models
 ---------------------------------------
@@ -80,9 +81,9 @@ relationship (as opposed to ``ForeignKey`` on the "many" side)::
         items = SortedOneToManyField(Item, sorted=True, blank=True)
 
 Here, ``category.items`` is the manager for related ``Item`` objects (the same as
-the normal ``ManyToManyField``, e.g. use it like ``category.items.add(new_item)``),
+the normal ``ManyToManyField``; use it like ``category.items.add(new_item)``),
 while ``item.category`` is an instance (not manager) of ``Category`` (similar
-to a ``OneToOneField``, e.g., use it like ``item.category.pk``)..
+to a ``OneToOneField``; use it like ``item.category.pk``).
 
 Strictly speaking, ``item.category`` is an instance of 
 ``sortedone2many.fields.OneToManyRelatedObjectDescriptor``,
@@ -111,27 +112,51 @@ First, add ``"sortedm2m"`` to your ``INSTALLED_APPS`` settings,
 which provides the static ``js`` and ``css`` files to render 
 the related objects in a ``SortedOneToManyField`` as a list of 
 checkboxes that can be sorted by drag'n'drop.
-(That is the same as the behavior of a ``SortedManyToManyField``).
+(That is similar to the behavior of a ``SortedManyToManyField``).
 
 By default, a ``SortedOneToManyField`` is translated into a form field
 ``sortedone2many.forms.SortedMultipleChoiceWithDisabledField`` for rendering.
 This form field also adds a special function to the widget:
 disables those checkboxes that should not be directly selected 
-on the current admin view (to ensure the unique ``OneToMany`` relationship).
+in the current admin view (to ensure the unique ``OneToMany`` relationship).
 
-E.g., in the image below, on the admin view for ``category 1``, 
+E.g., in the image below, in the admin view for ``category 1``, 
 ``item1.category`` is ``category 2``, so the checkbox for ``item1`` is disabled
 because ``category 2`` has to remove ``item1`` from its ``items`` list before
 ``category 1`` can select ``item1`` in the admin view.
 
 .. image:: https://raw.githubusercontent.com/ShenggaoZhu/django-sortedone2many/master/docs/category.jpg
 
+In the admin site, to display a related object on the reverse side of 
+a ``SortedOneToManyField`` (e.g., to display ``item1.category`` in the 
+admin view of ``item1``), simply use ``sortedone2many.admin.One2ManyModelAdmin``
+as the ``admin class`` to register your model::
+
+    from django.contrib import admin
+    from sortedone2many.admin import One2ManyModelAdmin
+    admin.site.register(MyItemModel, One2ManyModelAdmin)
+
+Or, use the shortcut function ``sortedone2many.admin.register``::
+
+    from sortedone2many.admin import register
+    register(MyItemModel)
+
+The related object will be rendered as a dropdown <select> list,
+through which you can assign it a different value. 
+Two additional "change" and "add" buttons are also listed beside it 
+(similar to a ``ForeignKey``), as shown below:
+
 .. image:: https://raw.githubusercontent.com/ShenggaoZhu/django-sortedone2many/master/docs/item.jpg
 
+Internally, ``One2ManyModelAdmin`` uses ``One2ManyModelForm`` for rendering,
+which automatically finds related ``SortedOneToManyField`` from the model defined in the
+form's Meta class, and add these fields to the form.
+Your can subclass ``One2ManyModelForm`` to customize it for your own model.
 
 Utility functions
 -----------------
-Use the following helper functions to inject extra fields to existing models:
+Use the following helper functions in ``sortedone2many.utils`` 
+to inject extra fields to existing models:
 
 + ``inject_extra_field_to_model(from_model, field_name, field)``
 
@@ -154,10 +179,10 @@ It is recommended to use `django migrations`_ to do this.
         "auth": "my_app.migrations_auth",
     }
 
-   The key (``"auth"``) of ``MIGRATION_MODULES`` is the name (app_label) of the library/app, 
+   The key (``"auth"``) of ``MIGRATION_MODULES`` is the name (``app_label``) of the library/app, 
    and the value is package/folder to store the migration files for this library/app.
 
-   **Note**: this value will supercede/shield the origirnal migrations folder in the library/app 
+   **Note**: this value will supercede/shield the original migrations folder in the library/app 
    (if it already uses django migrations), i.e., ``django.contrib.auth.migrations``.
 
 2. Next, run ``manage.py makemigrations auth`` and ``manage.py migrate auth`` 

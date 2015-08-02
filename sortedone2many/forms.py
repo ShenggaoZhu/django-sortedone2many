@@ -12,15 +12,10 @@ from sortedm2m.forms import SortedCheckboxSelectMultiple, SortedMultipleChoiceFi
 class SortedCheckboxSelectMultipleWithDisabled(SortedCheckboxSelectMultiple):
     '''
     Render a list of ``choices`` as checkboxes that can be sorted using drag & drop.
-    If some choices can not be directly selected in the admin view (because they
-    are already associated to other related objects), they will be rendered as 
-    disabled checkboxes.
+    Some checkboxes are rendered as "disabled" according to the ``disabled_value``.
     '''
     # override render()
     def render(self, name, value, attrs=None, choices=()):
-        # if item object already has another category, it can not be directly
-        # assigned to another category on that category's admin view
-        # thus disable the checkbox of the item
         disabled_value = getattr(self, 'disabled_value', [])
         if value is None: value = []
         has_id = attrs and 'id' in attrs
@@ -72,12 +67,17 @@ class SortedCheckboxSelectMultipleWithDisabled(SortedCheckboxSelectMultiple):
 
 class SortedMultipleChoiceWithDisabledField(SortedMultipleChoiceField):
     '''
-    Form field to render a ``SortedOneToManyField`` of a model.
-
-    Render a list of ``choices`` as checkboxes that can be sorted using drag & drop.
-    If some choices can not be directly selected in the admin view (because they
-    are already associated to other related objects), they will be rendered as 
-    disabled checkboxes.
+    Form field to render a ``SortedOneToManyField`` of a model as a list of 
+    ``choices`` or checkboxes that can be sorted using drag & drop.
+    
+    This form field also adds a special function to the widget:
+    disables those checkboxes that should not be directly selected 
+    on the current admin view (to ensure the unique ``OneToMany`` relationship).
+    
+    E.g., on the admin view for ``category 1``, 
+    ``item1.category`` is ``category 2``, so the checkbox for ``item1`` is disabled
+    because ``category 2`` has to remove ``item1`` from its ``items`` list before
+    ``category 1`` can select ``item1`` in the admin view.
 
     Pass a list of ``disabled_value`` to the widget so that the widget can decide
     whether to render a checkbox as "disabled".

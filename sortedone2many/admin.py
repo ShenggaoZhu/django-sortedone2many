@@ -46,6 +46,10 @@ class One2ManyModelFormMetaclass(ModelFormMetaclass):
 
 class One2ManyModelForm(six.with_metaclass(One2ManyModelFormMetaclass, forms.ModelForm)):
     '''
+    Find related One2Many fields from the model defined in the
+    Form's Meta class, and automatically add these related One2Many fields to
+    the Form as ``ModelChoiceField`` fields.
+
     Wrap the ``ModelChoiceField`` (for related One2Many fields of the model) 
     with ``RelatedFieldWidgetWrapper`` using a fake ``ManyToOneRel``, so that
     the ``ModelChoiceField`` will be rendered in the Admin site as a dropdown 
