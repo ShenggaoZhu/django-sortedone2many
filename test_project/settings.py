@@ -1,6 +1,6 @@
 # Django settings for testsite project.
 import os
-PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -75,7 +75,7 @@ INSTALLED_APPS = (
 ##     'sortedone2many', # no model/static files; no need to add
 
     'test_app',
- 
+#  
     'tests',  # must add 'tests' app to generate testing models
     'tests.app2',
 )

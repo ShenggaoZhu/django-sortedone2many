@@ -9,7 +9,7 @@ from django.utils import six
 
 from django.test import TestCase
 from django.db.utils import IntegrityError
-from .models import *
+from tests.models import *
 
 str_ = six.text_type
 

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-
+import django
 from django.db import models, router, transaction
 from django.db.models.fields.related import (ManyToManyField, ManyToManyRel,
     ManyRelatedObjectsDescriptor, RECURSIVE_RELATIONSHIP_CONSTANT)
 from django.utils import six
-from django.utils.functional import curry
+from django.utils.functional import curry, cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from sortedm2m.fields import SortedManyToManyField, SORT_VALUE_FIELD_NAME
@@ -23,8 +23,79 @@ class OneToManyRel(ManyToManyRel):
         # the lower-cased model name (without appending "_set" to it) as the
         # default related_name.
         self.multiple = False
+        
+########################################################
 
+    # Some of the following cached_properties can't be initialized in
+    # __init__ as the field doesn't have its model yet. Calling these methods
+    # before field.contribute_to_class() has been called will result in
+    # AttributeError
+    @cached_property
+    def model(self):
+        return self.to
 
+    @cached_property
+    def hidden(self):
+        return self.is_hidden()
+
+    @cached_property
+    def name(self):
+        return self.field.related_query_name()
+
+    @cached_property
+    def related_model(self):
+        if not self.field.model:
+            raise AttributeError(
+                "This property can't be accessed before self.field.contribute_to_class has been called.")
+        return self.field.model
+
+    @cached_property
+    def many_to_many(self):
+        return self.field.many_to_many
+
+    @cached_property
+    def many_to_one(self):
+        return self.field.one_to_many
+
+    @cached_property
+    def one_to_many(self):
+        return self.field.many_to_one
+
+    @cached_property
+    def one_to_one(self):
+        return self.field.one_to_one
+    
+    @cached_property
+    def parent_model(self):
+        return None
+
+    def get_accessor_name(self, model=None):
+        # This method encapsulates the logic that decides what name to give an
+        # accessor descriptor that retrieves related many-to-one or
+        # many-to-many objects. It uses the lower-cased object_name + "_set",
+        # but this can be overridden with the "related_name" option.
+        # Due to backwards compatibility ModelForms need to be able to provide
+        # an alternate model. See BaseInlineFormSet.get_default_prefix().
+        opts = model._meta if model else self.related_model._meta
+        model = model or self.related_model
+        if self.multiple:
+            # If this is a symmetrical m2m relation on self, there is no reverse accessor.
+            if self.symmetrical and model == self.to:
+                return None
+        if self.related_name:
+            return self.related_name
+        # if opts.default_related_name:
+        if hasattr(opts, 'default_related_name'):
+            return opts.default_related_name % {
+                'model_name': opts.model_name.lower(),
+                'app_label': opts.app_label.lower(),
+            }
+        return opts.model_name + ('_set' if self.multiple else '')
+    
+    def get_cache_name(self):
+        return "_%s_cache" % self.get_accessor_name()
+    
+    
 class OneToManyRelatedObjectDescriptor(ManyRelatedObjectsDescriptor):
     '''
     Accessor to the related object (not the manager) on the reverse side of a 
@@ -215,16 +286,25 @@ class SortedOneToManyField(SortedManyToManyField):
             to = str(to)
         kwargs['verbose_name'] = kwargs.get('verbose_name', None)
         # !! changed from ManyToManyRel to OneToManyRel
+        if django.VERSION >= (1, 8):
+            rel_args = [self]
+        else:
+            rel_args = []
         kwargs['rel'] = OneToManyRel(
-            self, to,
-            related_name=kwargs.pop('related_name', None),
-            related_query_name=kwargs.pop('related_query_name', None),
-            limit_choices_to=kwargs.pop('limit_choices_to', None),
-            symmetrical=kwargs.pop('symmetrical', to == RECURSIVE_RELATIONSHIP_CONSTANT),
-            through=kwargs.pop('through', None),
-            through_fields=kwargs.pop('through_fields', None),
-            db_constraint=db_constraint,
+            *rel_args,
+            **dict(
+                    to=to,
+                    related_name=kwargs.pop('related_name', None),
+                    related_query_name=kwargs.pop('related_query_name', None),
+                    limit_choices_to=kwargs.pop('limit_choices_to', None),
+                    symmetrical=kwargs.pop('symmetrical', to == RECURSIVE_RELATIONSHIP_CONSTANT),
+                    through=kwargs.pop('through', None),
+                    through_fields=kwargs.pop('through_fields', None),
+                    db_constraint=db_constraint,
+            )
         )
+        if django.VERSION < (1, 8):
+            kwargs['rel'].field = self
 
         self.swappable = swappable
         self.db_table = kwargs.pop('db_table', None)
@@ -235,6 +315,23 @@ class SortedOneToManyField(SortedManyToManyField):
 
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
+    
+    if django.VERSION < (1, 8):
+        def do_related_class(self, other, cls):
+            self.set_attributes_from_rel()
+            if not cls._meta.abstract:
+                self.contribute_to_related_class(other, self.rel)
+            # django 1.7:
+    #         self.set_attributes_from_rel()
+    #         self.related = RelatedObject(other, cls, self)
+    #         if not cls._meta.abstract:
+    #             self.contribute_to_related_class(other, self.related)
+        @property
+        def related(self):
+    #         warnings.warn(
+    #             "Usage of field.related has been deprecated. Use field.rel instead.",
+    #             RemovedInDjango110Warning, 2)
+            return self.rel
 
     def formfield(self, **kwargs):
         defaults = {}
