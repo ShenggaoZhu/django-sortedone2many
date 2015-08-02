@@ -19,17 +19,26 @@ str_ = six.text_type
 #     django.db.transaction.TransactionManagementError: An error occurred in the
 #     current transaction. You can't execute queries until the end of the 'atomic' block.
 
+# Note: cannot use setUpTestData() class method, because the related objects
+# (e.g., category) will be cached on the model instance after certain tests,
+# which may affect other tests
+
 
 class TestSortedOneToManyField(TestCase):
     # modified from ``SortedManyToManyField`` tests
     M_Cat = Category
     M_Item = Item
 
-    @classmethod
-    def setUpTestData(cls):
-        # Set up data for the whole TestCase
-        cls.cats = [cls.M_Cat.objects.create(name="cat%s" % i) for i in range(2)]
-        cls.items = [cls.M_Item.objects.create(name="item%s" % i) for i in range(10)]
+#     @classmethod
+#     def setUpTestData(cls):
+#         # Set up data for the whole TestCase
+#         cls.cats = [cls.M_Cat.objects.create(name="cat%s" % i) for i in range(2)]
+#         cls.items = [cls.M_Item.objects.create(name="item%s" % i) for i in range(10)]
+
+    def setUp(self):
+        # Set up data for each test
+        self.cats = [self.M_Cat.objects.create(name="cat%s" % i) for i in range(2)]
+        self.items = [self.M_Item.objects.create(name="item%s" % i) for i in range(10)]
 
     def assertRaisesUniqueFailed(self, callable_obj=None, *args, **kwargs):
         self.assertRaisesMessage(IntegrityError, 'UNIQUE constraint failed:',
@@ -148,6 +157,28 @@ class TestSortedOneToManyField(TestCase):
         self.assertEqual(self.items[3].category, cat2)
 
         self.assertEqual(list(cat2.items.all()), [self.items[3]])
+
+    def test_reverse_related_object_by_pk(self):
+        cat = self.cats[0]
+        cat2 = self.cats[1]
+
+        # None for not related object
+        self.assertEqual(self.items[3].category, None)
+
+        # directly assign category by pk
+        self.items[3].category = cat.pk
+        self.assertEqual(self.items[3].category, cat)
+
+
+        # directly assign category by pk
+        self.items[3].category = str_(cat2.pk)
+        self.assertEqual(self.items[3].category, cat2)
+
+        self.assertRaises(ValueError, lambda: setattr(
+            self.items[3], 'category', 'pk str that does not exist'))
+
+    def test_reverse_related_object_set_none(self):
+        self.items[1].category = None
 
     def test_set_items(self):
         cat = self.cats[0]
@@ -301,4 +332,3 @@ class TestAddExtraField(TestSortedOneToManyField):
     M_Cat = M1
     M_Item = M2
 
-        

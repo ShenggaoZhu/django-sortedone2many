@@ -12,7 +12,9 @@ from sortedm2m.compat import get_foreignkey_field_kwargs
 
 from .forms import SortedMultipleChoiceWithDisabledField
 
+
 class OneToManyRel(ManyToManyRel):
+    'the relationship (meta info) for a ``SortedOneToManyField``'
     def __init__(self, *args, **kwargs):
         super(OneToManyRel, self).__init__(*args, **kwargs)
         # set `multiple = False` as the `SortedOneToManyField` is on the
@@ -95,36 +97,60 @@ class OneToManyRelatedObjectDescriptor(ManyRelatedObjectsDescriptor):
                 "intermediary model. Use %s.%s's Manager instead." % (opts.app_label, opts.object_name)
             )
 
+        # if value is None, will simply remove this instance from the associated
+        # related object
+
         # If null=True, we can assign null here, but otherwise the value needs
         # to be an instance of the related class.
-        if value is None and self.related.field.null is False:
-            raise ValueError(
-                'Cannot assign None: "%s.%s" does not allow null values.' % (
-                    instance._meta.object_name,
-                    self.related.get_accessor_name(),
-                )
-            )
-#         elif value is not None and not isinstance(value, self.related.related_model):
+#         if value is None and self.related.field.null is False:
 #             raise ValueError(
-#                 'Cannot assign "%r": "%s.%s" must be a "%s" instance.' % (
-#                     value,
+#                 'Cannot assign None: "%s.%s" does not allow null values.' % (
 #                     instance._meta.object_name,
 #                     self.related.get_accessor_name(),
-#                     self.related.related_model._meta.object_name,
 #                 )
 #             )
 
-#         manager = self.__get__(instance)
-#         manager = ManyRelatedObjectsDescriptor.__get__(self, instance)
         manager = self.get_manager(instance)
+        set_cache = True
+        if not isinstance(value, self.related.related_model):
+            set_cache = False
+            if isinstance(value, models.Model):
+                raise ValueError(
+                    'Cannot assign "%r": "%s.%s" must be a "%s" instance.' % (
+                        value,
+                        instance._meta.object_name,
+                        self.related.get_accessor_name(),
+                        self.related.related_model._meta.object_name,
+                    )
+                )
+#             elif value is not None:
+#                 try:
+#                     print(manager.all(), value)
+#                     value = manager.get(pk=value)
+#                 except Exception:# self.related.related_model.DoesNotExist:
+#                     raise ValueError(
+#                         'Cannot assign "%r": it is not a valid pk of a "%s" instance.' % (
+#                             value,
+#                             self.related.related_model._meta.object_name,
+#                         )
+#                     )
+
         db = router.db_for_write(manager.through, instance=manager.instance)
         with transaction.atomic(using=db, savepoint=False):
             manager.clear()
-            manager.add(value)
-#         # Since we already know what the related object is, seed the related
-#         # object caches now, too. This avoids another db hit if you get the
-#         # object you just set.
-        setattr(instance, self.cache_name, value)
+            if value is not None:
+                manager.add(value)
+
+        if set_cache:
+            # Since we already know what the related object is, seed the related
+            # object caches now, too. This avoids another db hit if you get the
+            # object you just set.
+            setattr(instance, self.cache_name, value)
+        else:
+            # simply delete the cache, and it will be cached next time accessing it
+            if hasattr(instance, self.cache_name):
+                delattr(instance, self.cache_name)
+
 
 
 class SortedOneToManyField(SortedManyToManyField):
@@ -150,9 +176,9 @@ class SortedOneToManyField(SortedManyToManyField):
             items = SortedOneToManyField(Item, sorted=True)
 
     ``category.items`` is the manager for related ``Item`` objects (the same as
-    the normal ``ManyToManyField``, e.g. ``category.items.add(new_item)``),
-    while ``item.category`` is an instance (not manager) of ``Category`` (similar 
-    to a ``OneToOneField``, e.g., ``item.category.pk``).
+    the normal ``ManyToManyField``, e.g. use it like ``category.items.add(new_item)``),
+    while ``item.category`` is an instance (not manager) of ``Category`` (similar
+    to a ``OneToOneField``, e.g., use it like ``item.category.pk``).
     '''
     # Field flags
     many_to_many = True  # keep this to use the same deeper hooks
@@ -168,11 +194,8 @@ class SortedOneToManyField(SortedManyToManyField):
             'sort_value_field_name',
             SORT_VALUE_FIELD_NAME)
 
-        # not symmetrical, even for RECURSIVE_RELATIONSHIP_CONSTANT
+        # not symmetrical as it is "one-to-many", even for RECURSIVE_RELATIONSHIP_CONSTANT
         kwargs['symmetrical'] = False
-
-
-#         super(SortedManyToManyField, self).__init__(to, **kwargs)
 
         # ManyToManyField.__init__():
         db_constraint = kwargs.pop('db_constraint', True)
@@ -211,11 +234,13 @@ class SortedOneToManyField(SortedManyToManyField):
 
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
-    
+
     def formfield(self, **kwargs):
         defaults = {}
         if self.sorted:
             defaults['form_class'] = SortedMultipleChoiceWithDisabledField
+        # related_query_name is required for the SortedMultipleChoiceWithDisabledField
+        # to decide which items are not null (together with queryset)
         defaults['related_query_name'] = self.related_query_name()
         defaults.update(kwargs)
         return super(SortedManyToManyField, self).formfield(**defaults)

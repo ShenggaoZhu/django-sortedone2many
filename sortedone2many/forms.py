@@ -1,50 +1,26 @@
 # -*- coding: utf-8 -*-
-import django
-import sys
 from itertools import chain
 from django import forms
-from django.conf import settings
-from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
-from django.utils.html import conditional_escape, escape
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
-
-if sys.version_info[0] < 3:
-    iteritems = lambda d: iter(d.iteritems())
-    string_types = basestring,
-    str_ = unicode
-else:
-    iteritems = lambda d: iter(d.items())
-    string_types = str,
-    str_ = str
+from sortedm2m.forms import SortedCheckboxSelectMultiple, SortedMultipleChoiceField
 
 
-STATIC_URL = getattr(settings, 'STATIC_URL', settings.MEDIA_URL)
-
-
-class SortedCheckboxSelectMultipleWithDisabled(forms.CheckboxSelectMultiple):
-    class Media:
-        js = (
-            STATIC_URL + 'sortedm2m/widget.js',
-            STATIC_URL + 'sortedm2m/jquery-ui.js',
-        )
-        css = {'screen': (
-            STATIC_URL + 'sortedm2m/widget.css',
-        )}
-
-    def build_attrs(self, attrs=None, **kwargs):
-        attrs = super(SortedCheckboxSelectMultipleWithDisabled, self).\
-            build_attrs(attrs, **kwargs)
-        classes = attrs.setdefault('class', '').split()
-        classes.append('sortedm2m')
-        attrs['class'] = ' '.join(classes)
-        return attrs
-
+class SortedCheckboxSelectMultipleWithDisabled(SortedCheckboxSelectMultiple):
+    '''
+    Render a list of ``choices`` as checkboxes that can be sorted using drag & drop.
+    If some choices can not be directly selected in the admin view (because they
+    are already associated to other related objects), they will be rendered as 
+    disabled checkboxes.
+    '''
+    # override render()
     def render(self, name, value, attrs=None, choices=()):
-        # if item object already has another category, it can not be directly 
-        # selected on the category admin view; thus disabled
+        # if item object already has another category, it can not be directly
+        # assigned to another category on that category's admin view
+        # thus disable the checkbox of the item
         disabled_value = getattr(self, 'disabled_value', [])
         if value is None: value = []
         has_id = attrs and 'id' in attrs
@@ -65,6 +41,7 @@ class SortedCheckboxSelectMultipleWithDisabled(forms.CheckboxSelectMultiple):
             else:
                 label_for = ''
 
+            # if an item has a category other than the current showing category
             if option_value in disabled_value and option_value not in value:
                 extra_attrs = {'disabled': 'disabled'}
             else:
@@ -92,50 +69,26 @@ class SortedCheckboxSelectMultipleWithDisabled(forms.CheckboxSelectMultiple):
             {'selected': selected, 'unselected': unselected})
         return mark_safe(html)
 
-    def value_from_datadict(self, data, files, name):
-        value = data.get(name, None)
-        if isinstance(value, string_types):
-            return [v for v in value.split(',') if v]
-        return value
 
-    if django.VERSION < (1, 7):
-        def _has_changed(self, initial, data):
-            if initial is None:
-                initial = []
-            if data is None:
-                data = []
-            if len(initial) != len(data):
-                return True
-            initial_set = [force_text(value) for value in initial]
-            data_set = [force_text(value) for value in data]
-            return data_set != initial_set
+class SortedMultipleChoiceWithDisabledField(SortedMultipleChoiceField):
+    '''
+    Form field to render a ``SortedOneToManyField`` of a model.
 
+    Render a list of ``choices`` as checkboxes that can be sorted using drag & drop.
+    If some choices can not be directly selected in the admin view (because they
+    are already associated to other related objects), they will be rendered as 
+    disabled checkboxes.
 
-class SortedMultipleChoiceWithDisabledField(forms.ModelMultipleChoiceField):
+    Pass a list of ``disabled_value`` to the widget so that the widget can decide
+    whether to render a checkbox as "disabled".
+    '''
+
     widget = SortedCheckboxSelectMultipleWithDisabled
 
     def __init__(self, related_query_name, *args, **kwargs):
         super(SortedMultipleChoiceWithDisabledField, self).__init__(*args, **kwargs)
+        # find all items that have an non-null category
         disabled_value = self.queryset.filter(**{related_query_name + '__isnull':False}
                                                 ).values_list('pk', flat=True)
         self.widget.disabled_value = disabled_value
 
-    def clean(self, value):
-        queryset = super(SortedMultipleChoiceWithDisabledField, self).clean(value)
-        if value is None or not isinstance(queryset, QuerySet):
-            return queryset
-        object_list = dict((
-            (str_(key), value)
-            for key, value in iteritems(queryset.in_bulk(value))))
-        return [object_list[str_(pk)] for pk in value]
-
-    def _has_changed(self, initial, data):
-        if initial is None:
-            initial = []
-        if data is None:
-            data = []
-        if len(initial) != len(data):
-            return True
-        initial_set = [force_text(value) for value in self.prepare_value(initial)]
-        data_set = [force_text(value) for value in data]
-        return data_set != initial_set
