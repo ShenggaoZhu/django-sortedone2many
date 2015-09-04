@@ -64,10 +64,10 @@ setup(
     name='django-sortedone2many',
     version=find_version('sortedone2many', '__init__.py'),
     url='https://github.com/ShenggaoZhu/django-sortedone2many',
-    download_url = 'https://codeload.github.com/ShenggaoZhu/django-sortedone2many/zip/0.1',
+    download_url = 'https://codeload.github.com/ShenggaoZhu/django-sortedone2many/zip/v0.1.5',
     license='MIT',
     description=
-        'Provide a one-to-many relation that also remembers the order of related objects.',
+        'Provide a one-to-many relationship that also remembers the order of related objects.',
     long_description=long_description,
     author=UltraMagicString('Shenggao Zhu'),
     author_email='zshgao@gmail.com',
