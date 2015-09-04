@@ -81,15 +81,20 @@ relationship (as opposed to ``ForeignKey`` on the "many" side)::
         items = SortedOneToManyField(Item, sorted=True, blank=True)
 
 Here, ``category.items`` is the manager for related ``Item`` objects (the same as
-the normal ``ManyToManyField``; use it like ``category.items.add(new_item)``),
-while ``item.category`` is an instance (not manager) of ``Category`` (similar
-to a ``OneToOneField``; use it like ``item.category.pk``).
+the normal ``ManyToManyField``); use it like ``category.items.add(new_item)``,
+``category.items.all()``. By default, the list of ``items`` (e.g., ``category.items.all()``) 
+is sorted according to the order that each ``item`` is added.
+
+On the other side, ``item.category`` is an *instance* (not manager) of ``Category`` (similar
+to a ``OneToOneField``); use it like ``item.category.pk``, ``item.category = new_category``. 
 
 Strictly speaking, ``item.category`` is an instance of 
-``sortedone2many.fields.OneToManyRelatedObjectDescriptor``,
-which directly exposes the (single) related object.
+``sortedone2many.fields.OneToManyRelatedObjectDescriptor`` 
+(a type of `python descriptor <https://docs.python.org/3.4/howto/descriptor.html>`_),
+which directly exposes the *single* related object (i.e., the ``category`` instance).
 This is different from the ``ManyRelatedObjectsDescriptor`` (as in the normal ``ManyToManyField``)
-which exposes the ``manager`` of the (multiple) related objects.
+which exposes the ``manager`` of the *potentially multiple* related objects 
+(which is not as convenient to use in the ``OneToMany`` relationship).
 
 ``SortedOneToManyField``
 ------------------------
@@ -143,8 +148,9 @@ Or, use the shortcut function ``sortedone2many.admin.register``::
 
 The related object will be rendered as a dropdown <select> list,
 through which you can assign it a different value. 
-Two additional "change" and "add" buttons are also listed beside it 
-(similar to a ``ForeignKey``), as shown below:
+Two additional "change" and "add" buttons are also listed after the dropdown list 
+as the shortcuts to edit the ``category``
+(similar to the appearance of a ``ForeignKey``), as shown below:
 
 .. image:: https://raw.githubusercontent.com/ShenggaoZhu/django-sortedone2many/master/docs/item.jpg
 
@@ -164,8 +170,9 @@ to inject extra fields to existing models:
 
 Working with existing models
 ----------------------------
-``SortedOneToManyField`` can be added to an existing model that can't be edited directly
-(e.g., in another library/app). For example, add to the ``User`` model in ``django.contrib.auth.models``.
+``SortedOneToManyField`` (or generally, any extra model field) can be added to an existing model 
+that can't be edited directly (e.g., in another library/app). For example, add the field to 
+the ``User`` model in ``django.contrib.auth.models``.
 
 It is recommended to use `django migrations`_ to do this.
 
