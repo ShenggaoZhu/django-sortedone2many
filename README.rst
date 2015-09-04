@@ -81,15 +81,19 @@ relationship (as opposed to ``ForeignKey`` on the "many" side)::
         items = SortedOneToManyField(Item, sorted=True, blank=True)
 
 Here, ``category.items`` is the manager for related ``Item`` objects (the same as
-the normal ``ManyToManyField``; use it like ``category.items.add(new_item)``),
-while ``item.category`` is an instance (not manager) of ``Category`` (similar
-to a ``OneToOneField``; use it like ``item.category.pk``).
+the normal ``ManyToManyField``); use it like ``category.items.add(new_item)``,
+``category.items.all()``.
+
+On the other side, ``item.category`` is an *instance* (not manager) of ``Category`` (similar
+to a ``OneToOneField``); use it like ``item.category.pk``, ``item.category = new_category``. 
+By default, the list of ``items`` (e.g., ``category.items.all()``) is sorted according to the order that each item is added.
 
 Strictly speaking, ``item.category`` is an instance of 
 ``sortedone2many.fields.OneToManyRelatedObjectDescriptor``,
-which directly exposes the (single) related object.
+which directly exposes the *single* related object (i.e., the ``category`` instance).
 This is different from the ``ManyRelatedObjectsDescriptor`` (as in the normal ``ManyToManyField``)
-which exposes the ``manager`` of the (multiple) related objects.
+which exposes the ``manager`` of the *potentially multiple* related objects 
+(which is not as convenient to use in the ``OneToMany`` relationship).
 
 ``SortedOneToManyField``
 ------------------------
