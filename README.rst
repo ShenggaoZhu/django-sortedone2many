@@ -82,14 +82,15 @@ relationship (as opposed to ``ForeignKey`` on the "many" side)::
 
 Here, ``category.items`` is the manager for related ``Item`` objects (the same as
 the normal ``ManyToManyField``); use it like ``category.items.add(new_item)``,
-``category.items.all()``.
+``category.items.all()``. By default, the list of ``items`` (e.g., ``category.items.all()``) 
+is sorted according to the order that each ``item`` is added.
 
 On the other side, ``item.category`` is an *instance* (not manager) of ``Category`` (similar
 to a ``OneToOneField``); use it like ``item.category.pk``, ``item.category = new_category``. 
-By default, the list of ``items`` (e.g., ``category.items.all()``) is sorted according to the order that each item is added.
 
 Strictly speaking, ``item.category`` is an instance of 
-``sortedone2many.fields.OneToManyRelatedObjectDescriptor``,
+``sortedone2many.fields.OneToManyRelatedObjectDescriptor`` 
+(a type of `python descriptor <https://docs.python.org/3.4/howto/descriptor.html>`_),
 which directly exposes the *single* related object (i.e., the ``category`` instance).
 This is different from the ``ManyRelatedObjectsDescriptor`` (as in the normal ``ManyToManyField``)
 which exposes the ``manager`` of the *potentially multiple* related objects 
