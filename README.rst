@@ -148,8 +148,9 @@ Or, use the shortcut function ``sortedone2many.admin.register``::
 
 The related object will be rendered as a dropdown <select> list,
 through which you can assign it a different value. 
-Two additional "change" and "add" buttons are also listed beside it 
-(similar to a ``ForeignKey``), as shown below:
+Two additional "change" and "add" buttons are also listed after the dropdown list 
+as the shortcuts to edit the ``category``
+(similar to the appearance of a ``ForeignKey``), as shown below:
 
 .. image:: https://raw.githubusercontent.com/ShenggaoZhu/django-sortedone2many/master/docs/item.jpg
 
@@ -169,8 +170,9 @@ to inject extra fields to existing models:
 
 Working with existing models
 ----------------------------
-``SortedOneToManyField`` can be added to an existing model that can't be edited directly
-(e.g., in another library/app). For example, add to the ``User`` model in ``django.contrib.auth.models``.
+``SortedOneToManyField`` (or generally, any extra model field) can be added to an existing model 
+that can't be edited directly (e.g., in another library/app). For example, add the field to 
+the ``User`` model in ``django.contrib.auth.models``.
 
 It is recommended to use `django migrations`_ to do this.
 
