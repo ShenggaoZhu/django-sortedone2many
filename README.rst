@@ -2,6 +2,25 @@
 django-sortedone2many
 =====================
 
+|license| |pypi-version| |pypi-downloads| |travis-status|
+
+.. |license| image:: https://img.shields.io/pypi/l/django-sortedone2many.svg
+   :alt: License
+   :target: ./LICENSE
+
+.. |pypi-version| image:: https://img.shields.io/pypi/v/django-sortedone2many.svg
+   :alt: PyPI Release
+   :target: https://pypi.python.org/pypi/django-sortedone2many
+
+.. |pypi-downloads| image:: https://img.shields.io/pypi/dm/django-sortedone2many.svg
+   :alt: PyPI Downloads
+   :target: https://pypi.python.org/pypi/django-sortedone2many
+
+.. |travis-status| image:: https://travis-ci.org/ShenggaoZhu/django-sortedone2many.svg?branch=master
+	:alt: Travis Build Status
+    :target: https://travis-ci.org/ShenggaoZhu/django-sortedone2many
+
+
 ``sortedone2many`` provides a ``SortedOneToManyField`` for django Model that establishes a 
 one-to-many relationship (which can also remember the order of related objects).
 
@@ -209,12 +228,18 @@ That's it! Now ``user.items`` and ``item.owner`` are available as if you defined
 
 Test
 ====
-(Setup database first by ``python manage.py migrate``)
-Run ``python manage.py test tests``
+1. Setup database::
+
+    python manage.py makemigrations auth tests app2
+    python manage.py migrate
+
+2. Run tests::
+    
+    python manage.py test tests
 
 + ``test_project`` contains the django project ``settings.py``
 + ``tests`` folder contains all the testcases
-+ Only tested with django 1.8 + python 3.4
++ Tested with django 1.8 and python 3.4, 3.5
 
 
 TODO
