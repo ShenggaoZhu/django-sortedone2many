@@ -46,8 +46,8 @@ class TestSortedOneToManyField(TestCase):
     def assertRaisesUniqueFailed(self, callable_obj=None, *args, **kwargs):
         msg_pattern = re.compile('unique', re.IGNORECASE)
         #'UNIQUE constraint failed:|is not unique'
-        self.assertRaisesMessage(IntegrityError, msg_pattern,
-                                callable_obj, *args, **kwargs)
+        return six.assertRaisesRegex(self, IntegrityError,
+                msg_pattern, callable_obj, *args, **kwargs)
 
     def test_add_items(self):
 
