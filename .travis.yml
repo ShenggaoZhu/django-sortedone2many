@@ -20,3 +20,8 @@ script:
   - python manage.py makemigrations auth tests app2
   - python manage.py migrate --noinput
   - python manage.py test tests
+
+
+
+notifications:
+  email: false

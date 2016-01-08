@@ -9,6 +9,9 @@ from django.utils import six
 
 from django.test import TestCase
 from django.db.utils import IntegrityError
+
+import re
+
 from .models import *
 
 str_ = six.text_type
@@ -41,7 +44,9 @@ class TestSortedOneToManyField(TestCase):
         self.items = [self.M_Item.objects.create(name="item%s" % i) for i in range(10)]
 
     def assertRaisesUniqueFailed(self, callable_obj=None, *args, **kwargs):
-        self.assertRaisesMessage(IntegrityError, 'UNIQUE constraint failed:',
+        msg_pattern = re.compile('unique', re.IGNORECASE)
+        #'UNIQUE constraint failed:|is not unique'
+        self.assertRaisesMessage(IntegrityError, msg_pattern,
                                 callable_obj, *args, **kwargs)
 
     def test_add_items(self):
