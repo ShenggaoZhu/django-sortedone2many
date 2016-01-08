@@ -17,6 +17,6 @@ env:
 install: "pip install -r requirements.txt"
 # command to run tests
 script: 
-  - python manage.py makemigrations tests auth
+  - python manage.py makemigrations auth tests app2
   - python manage.py migrate --noinput
   - python manage.py test tests
