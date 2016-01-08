@@ -23,4 +23,6 @@ db.sqlite
 pep8.txt
 
 __pycache__
-example/migrations
+migrations
+*/migrations
+test_app/migrations_auth
