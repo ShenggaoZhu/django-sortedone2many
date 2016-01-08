@@ -63,7 +63,6 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -85,10 +84,10 @@ MIGRATION_MODULES = {
     "auth": "test_app.migrations_auth",
 }
 
-import django
+# import django
 
-if django.VERSION >= (1, 6):
-    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+# if django.VERSION >= (1, 6):
+#     TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Only test south for django versions lower as 1.7
 # 1.7 introduced it's own migrations framework
