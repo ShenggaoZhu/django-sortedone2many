@@ -209,6 +209,7 @@ That's it! Now ``user.items`` and ``item.owner`` are available as if you defined
 
 Test
 ====
+(Setup database first by ``python manage.py migrate``)
 Run ``python manage.py test tests``
 
 + ``test_project`` contains the django project ``settings.py``
