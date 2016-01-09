@@ -38,7 +38,9 @@ Sorted ``OneToMany`` relationship
 The ``OneToMany`` relationship has been long missing from django ORM.
 A similar relationship, ``ManyToOne``, is provided via a ``ForeignKey``,
 which is always declared on the "many" side of the relationship.
-In the following example (using ``related_name`` on a ``ForeignKey``)::
+In the following example (using ``related_name`` on a ``ForeignKey``):
+
+.. code-block:: python
 
     class Category(models.Model):
         name = models.CharField(max_length=50)
@@ -52,7 +54,9 @@ However, it is not easy to
 manage the order of the list of ``items`` in a ``category``.
 
 To address this need, simply add a ``SortedOneToManyField`` (from this package) to 
-the model on the "one" side of the relationship::
+the model on the "one" side of the relationship:
+
+.. code-block:: python
 
     class Category(models.Model):
         name = models.CharField(max_length=50)
@@ -87,7 +91,9 @@ Usage
 =====
 
 Add the ``SortedOneToManyField`` to the model on the "one" side of the 
-relationship (as opposed to ``ForeignKey`` on the "many" side)::
+relationship (as opposed to ``ForeignKey`` on the "many" side):
+
+.. code-block:: python
 
     from django.db import models
     from sortedone2many.fields import SortedOneToManyField
@@ -154,13 +160,17 @@ because ``category 2`` has to remove ``item1`` from its ``items`` list before
 In the admin site, to display a related object on the reverse side of 
 a ``SortedOneToManyField`` (e.g., to display ``item1.category`` in the 
 admin view of ``item1``), simply use ``sortedone2many.admin.One2ManyModelAdmin``
-as the ``admin class`` to register your model::
+as the ``admin class`` to register your model:
+
+.. code-block:: python
 
     from django.contrib import admin
     from sortedone2many.admin import One2ManyModelAdmin
     admin.site.register(MyItemModel, One2ManyModelAdmin)
 
-Or, use the shortcut function ``sortedone2many.admin.register``::
+Or, use the shortcut function ``sortedone2many.admin.register``:
+
+.. code-block:: python
 
     from sortedone2many.admin import register
     register(MyItemModel)
@@ -183,9 +193,12 @@ Utility functions
 Use the following helper functions in ``sortedone2many.utils`` 
 to inject extra fields to existing models:
 
-+ ``inject_extra_field_to_model(from_model, field_name, field)``
+.. code-block:: python
 
-+ ``add_sorted_one2many_relation(model_one, model_many, field_name_on_model_one=None, related_name_on_model_many=None)``
+   inject_extra_field_to_model(from_model, field_name, field)
+   
+   add_sorted_one2many_relation(model_one, model_many, field_name_on_model_one=None, 
+                                related_name_on_model_many=None)
 
 Working with existing models
 ----------------------------
@@ -199,7 +212,9 @@ It is recommended to use `django migrations`_ to do this.
 
 1. First, add the existing model (``User``) into django ``migrations`` using a migrations folder 
    **outside the original library/app** (e.g., in your own app). 
-   This can be achieved by configuring the ``MIGRATION_MODULES`` dictionary in your django ``settings``::
+   This can be achieved by configuring the ``MIGRATION_MODULES`` dictionary in your django ``settings``:
+
+   .. code-block:: python
 
     MIGRATION_MODULES = {
         "auth": "my_app.migrations_auth",
@@ -216,7 +231,9 @@ It is recommended to use `django migrations`_ to do this.
    A new migration file ``0001_initial.py`` should be generated in the specified folder.
    If the database table is already created for the model, no actual migrations will be applied.
 
-3. Add a ``SortedOneToManyField`` named ``items`` to the ``User`` model using the helper function::
+3. Add a ``SortedOneToManyField`` named ``items`` to the ``User`` model using the helper function:
+
+   .. code-block:: python
     
     inject_extra_field_to_model(User, 'items', SortedOneToManyField(Item, related_name='owner'))
 
@@ -234,7 +251,7 @@ Test
     python manage.py migrate
 
 2. Run tests::
-    
+
     python manage.py test tests
 
 + ``test_project`` contains the django project ``settings.py``
