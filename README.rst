@@ -17,8 +17,8 @@ django-sortedone2many
    :target: https://pypi.python.org/pypi/django-sortedone2many
 
 .. |travis-status| image:: https://travis-ci.org/ShenggaoZhu/django-sortedone2many.svg?branch=master
-	:alt: Travis Build Status
-    :target: https://travis-ci.org/ShenggaoZhu/django-sortedone2many
+   :alt: Travis Build Status
+   :target: https://travis-ci.org/ShenggaoZhu/django-sortedone2many
 
 
 ``sortedone2many`` provides a ``SortedOneToManyField`` for django Model that establishes a 
