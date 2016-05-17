@@ -1,13 +1,21 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
-from django.db.models.fields.related import ManyToOneRel
+from django.db.models.fields.related import ManyToOneRel, ManyToManyField
 from django import forms
 from django.utils import six
 
 from .fields import OneToManyRel
 
 from django.forms.models import ModelFormMetaclass
+
+import django
+if django.VERSION >= (1, 9):
+    def get_all_related_many_to_many_objects(_meta):
+        return [obj for obj in _meta.get_fields() if isinstance(obj, ManyToManyField)]
+else:
+    def get_all_related_many_to_many_objects(_meta):
+        return _meta.get_all_related_many_to_many_objects()
 
 
 class One2ManyModelFormMetaclass(ModelFormMetaclass):
@@ -28,7 +36,7 @@ class One2ManyModelFormMetaclass(ModelFormMetaclass):
 #                     if isinstance(field, SortedOneToManyField):
 #                         one2manyfields.append(field)
 
-                related_fields = model._meta.get_all_related_many_to_many_objects()
+                related_fields = get_all_related_many_to_many_objects(model._meta)
                 for field in related_fields:
                     if not isinstance(field, OneToManyRel):
                         continue
@@ -96,7 +104,7 @@ class One2ManyModelAdmin(admin.ModelAdmin):
         self.form.admin_site = admin_site  # used in the form
 
         self.related_one2manyfields = []
-        related_fields = self.opts.get_all_related_many_to_many_objects()
+        related_fields = get_all_related_many_to_many_objects(self.opts)
         for field in related_fields:
             if not isinstance(field, OneToManyRel):
                 continue

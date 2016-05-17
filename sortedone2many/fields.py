@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
-
+import django
 from django.db import models, router, transaction
 from django.db.models.fields.related import (ManyToManyField, ManyToManyRel,
-    ManyRelatedObjectsDescriptor, RECURSIVE_RELATIONSHIP_CONSTANT)
+    RECURSIVE_RELATIONSHIP_CONSTANT)
+if django.VERSION >= (1, 9):
+    from django.db.models.fields.related import ManyToManyDescriptor as ManyRelatedObjectsDescriptor
+else:
+    from django.db.models.fields.related import ManyRelatedObjectsDescriptor
+    
 from django.utils import six
 from django.utils.functional import curry
 from django.utils.translation import ugettext_lazy as _
@@ -43,9 +48,11 @@ class OneToManyRelatedObjectDescriptor(ManyRelatedObjectsDescriptor):
     ``ManyRelatedObjectsDescriptor``).
     '''
     def __init__(self, related):
-        self.related = related
+        self.related = self.rel = related
         self.cache_name = related.get_cache_name()
         self.sup = super(OneToManyRelatedObjectDescriptor, self)
+        if django.VERSION >= (1, 9):
+            self.reverse = True # always True
 
     def is_cached(self, instance):
         return hasattr(instance, self.cache_name)
@@ -151,7 +158,6 @@ class OneToManyRelatedObjectDescriptor(ManyRelatedObjectsDescriptor):
             # simply delete the cache, and it will be cached next time accessing it
             if hasattr(instance, self.cache_name):
                 delattr(instance, self.cache_name)
-
 
 
 class SortedOneToManyField(SortedManyToManyField):

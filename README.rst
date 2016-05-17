@@ -258,5 +258,5 @@ Test
 
 + ``test_project`` contains the django project ``settings.py``
 + ``tests`` folder contains all the testcases
-+ Tested with django 1.8 and python 2.7, 3.3, 3.4, 3.5
++ Tested with django 1.8, 1.9 and python 2.7, 3.3, 3.4, 3.5
 
