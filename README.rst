@@ -2,23 +2,25 @@
 django-sortedone2many
 =====================
 
-|license| |pypi-version| |pypi-downloads| |travis-status|
+.. image:: https://img.shields.io/pypi/l/django-sortedone2many.svg
+    :target: ./LICENSE
+    :alt: License
 
-.. |license| image:: https://img.shields.io/pypi/l/django-sortedone2many.svg
-   :alt: License
-   :target: ./LICENSE
+.. image:: https://img.shields.io/pypi/v/django-sortedone2many.svg
+    :target: https://pypi.python.org/pypi/django-sortedone2many
+    :alt: PyPI Release
 
-.. |pypi-version| image:: https://img.shields.io/pypi/v/django-sortedone2many.svg
-   :alt: PyPI Release
-   :target: https://pypi.python.org/pypi/django-sortedone2many
+.. image:: https://img.shields.io/pypi/pyversions/django-sortedone2many.svg
+    :target: https://pypi.python.org/pypi/django-sortedone2many
+    :alt: Supported Python versions
 
-.. |pypi-downloads| image:: https://img.shields.io/pypi/dm/django-sortedone2many.svg
-   :alt: PyPI Downloads
-   :target: https://pypi.python.org/pypi/django-sortedone2many
+.. image:: https://img.shields.io/pypi/dm/django-sortedone2many.svg
+    :alt: PyPI Downloads
+    :target: https://pypi.python.org/pypi/django-sortedone2many
 
-.. |travis-status| image:: https://travis-ci.org/ShenggaoZhu/django-sortedone2many.svg?branch=master
-   :alt: Travis Build Status
-   :target: https://travis-ci.org/ShenggaoZhu/django-sortedone2many
+.. image:: https://travis-ci.org/ShenggaoZhu/django-sortedone2many.svg?branch=master
+    :target: https://travis-ci.org/ShenggaoZhu/django-sortedone2many
+    :alt: Travis Build Status
 
 
 ``sortedone2many`` provides a ``SortedOneToManyField`` for django Model that establishes a
@@ -258,9 +260,3 @@ Test
 + ``tests`` folder contains all the testcases
 + Tested with django 1.8 and python 2.7, 3.3, 3.4, 3.5
 
-
-TODO
-====
-
-+ Add more tests, documentation and examples
-+ ...
