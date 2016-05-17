@@ -20,7 +20,7 @@ env:
 matrix:
   include:
     - python: "3.3"
-      DJANGO_VERSION=1.8
+      env: DJANGO_VERSION=1.8
 
 
 # command to install dependencies
