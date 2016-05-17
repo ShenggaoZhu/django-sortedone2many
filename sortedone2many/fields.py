@@ -238,6 +238,8 @@ class SortedOneToManyField(SortedManyToManyField):
             assert self.db_table is None, "Cannot specify a db_table if an intermediary model is used."
 
         super(ManyToManyField, self).__init__(**kwargs)
+        if django.VERSION >= (1, 9):
+            self.has_null_arg = 'null' in kwargs
 
         if self.sorted:
             self.help_text = kwargs.get('help_text', None)
