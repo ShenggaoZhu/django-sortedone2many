@@ -245,8 +245,8 @@ It is recommended to use `django migrations`_ to do this.
 That's it! Now ``user.items`` and ``item.owner`` are available as if you defined the
 ``items`` field in the ``User`` model source code.
 
-Test
-====
+Testing
+=======
 1. Setup database::
 
     python manage.py makemigrations auth tests app2
