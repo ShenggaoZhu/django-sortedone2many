@@ -42,7 +42,7 @@ inject_extra_field_to_model(CategoryFixed, 'items',
     SortedOneToManyField(ItemFixed, sorted=True, related_name='category', blank=True))
 
 
-from tests.app2.models import M1, M2
+from .app2.models import M1, M2
 
 inject_extra_field_to_model(M1, 'items',
     SortedOneToManyField(M2, sorted=True, related_name='category', blank=True))

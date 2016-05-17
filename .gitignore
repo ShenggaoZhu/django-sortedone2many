@@ -26,3 +26,4 @@ __pycache__
 migrations
 */migrations
 test_app/migrations_auth
+.spyderproject

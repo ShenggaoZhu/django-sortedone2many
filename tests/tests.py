@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from django.db import models
 
 from django.db import connection
@@ -12,7 +11,12 @@ from django.db.utils import IntegrityError
 
 import re
 
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from .models import *
+from .app2.models import M1, M2
+
 
 str_ = six.text_type
 
