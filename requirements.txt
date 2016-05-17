@@ -1,2 +1,2 @@
-django == 1.8
+django >= 1.8
 django-sortedm2m >= 1.0.0

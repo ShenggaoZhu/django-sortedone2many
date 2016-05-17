@@ -9,13 +9,21 @@ python:
   # - "nightly" # currently points to 3.6-dev
   
 env:
+  - DJANGO_VERSION=1.8
+  - DJANGO_VERSION=1.9
+  
   global:
     - DJANGO_MANAGE_LOCATION="manage.py"
     - DJANGO_SETTINGS_MODULE="test_project.settings"
 
+    
+
 
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install: 
+  - pip install -r requirements.txt
+  - pip install -U -q Django==$DJANGO_VERSION
+  
 # command to run tests
 script: 
   - python manage.py makemigrations auth tests app2
