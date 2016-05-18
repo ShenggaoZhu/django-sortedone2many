@@ -36,6 +36,8 @@ Installation
 
 ``pip install django-sortedone2many``
 
+PyPI repository: https://pypi.python.org/pypi/django-sortedone2many
+
 
 Usecases
 ========
