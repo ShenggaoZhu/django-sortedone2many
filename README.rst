@@ -14,7 +14,7 @@ django-sortedone2many
     :target: https://pypi.python.org/pypi/django-sortedone2many
     :alt: Supported Python versions
 
-.. image:: https://img.shields.io/pypi/dm/django-sortedone2many.svg
+.. .. image:: https://img.shields.io/pypi/dm/django-sortedone2many.svg
     :alt: PyPI Downloads
     :target: https://pypi.python.org/pypi/django-sortedone2many
 
@@ -29,6 +29,12 @@ one-to-many relationship (which can also remember the order of related objects).
 Depends on ``SortedManyToManyField`` from the great library django-sortedm2m_ (check it out!).
 
 .. _django-sortedm2m: https://github.com/gregmuellegger/django-sortedm2m
+
+
+Installation
+============
+
+``pip install django-sortedone2many``
 
 
 Usecases
